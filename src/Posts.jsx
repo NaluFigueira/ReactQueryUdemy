@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { PostDetail } from "./PostDetail";
@@ -14,8 +15,9 @@ export function Posts() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedPost, setSelectedPost] = useState(null);
 
-  // replace with useQuery
-  const data = [];
+  const { data } = useQuery(['posts'], fetchPosts);
+
+  if(!data) return <div />
 
   return (
     <>
