@@ -21,7 +21,7 @@ export function InfinitePeople() {
     ["sw-people"],
     ({ pageParam = initialUrl }) => fetchUrl(pageParam),
     {
-      getNextPageParam: (lastPage) => lastPage.next || undefined,
+      getNextPageParam: (lastPage) => lastPage.next,
     }
   );
 
