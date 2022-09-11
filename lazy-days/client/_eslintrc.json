@@ -42,7 +42,7 @@
     "import/no-extraneous-dependencies": [2, { "devDependencies": true }],
     "testing-library/await-async-query": "error",
     "testing-library/no-await-sync-query": "error",
-    "testing-library/no-debug": "warn",
+    "testing-library/no-debugging-utils": "warn",
     "jest-dom/prefer-checked": "error",
     "jest-dom/prefer-enabled-disabled": "error",
     "jest-dom/prefer-required": "error",
