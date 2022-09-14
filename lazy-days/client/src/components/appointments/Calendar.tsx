@@ -7,6 +7,7 @@ import {
   HStack,
   IconButton,
 } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ReactElement } from 'react';
 import { TiArrowLeftThick, TiArrowRightThick } from 'react-icons/ti';
