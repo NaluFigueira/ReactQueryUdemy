@@ -1,6 +1,12 @@
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
 import { axiosInstance } from '../../../axiosInstance';
 import { queryKeys } from '../../../react-query/constants';
@@ -42,19 +48,21 @@ export function useAppointments(): UseAppointments {
     setMonthYear((prevData) => getNewMonthYear(prevData, monthIncrement));
   }
 
-  /** ****************** START 2: filter appointments  ****************** */
-  // State and functions for filtering appointments to show all or only available
   const [showAll, setShowAll] = useState(false);
 
-  // We will need imported function getAvailableAppointments here
-  // We need the user to pass to getAvailableAppointments so we can show
-  //   appointments that the logged-in user has reserved (in white)
   const { user } = useUser();
 
-  /** ****************** END 2: filter appointments  ******************** */
+  const selectFn = useCallback(
+    (data) => getAvailableAppointments(data, user),
+    [user],
+  );
+
   const { data: appointments = {} } = useQuery(
     [queryKeys.appointments, monthYear.year, monthYear.month],
     () => getAppointments(monthYear.year, monthYear.month),
+    {
+      select: !showAll && selectFn,
+    },
   );
 
   return { appointments, monthYear, updateMonthYear, showAll, setShowAll };
