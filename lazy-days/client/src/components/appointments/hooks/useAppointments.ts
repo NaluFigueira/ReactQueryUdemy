@@ -30,6 +30,11 @@ interface UseAppointments {
   setShowAll: Dispatch<SetStateAction<boolean>>;
 }
 
+const commonOptions = {
+  staleTime: 0,
+  cacheTime: 300000,
+};
+
 export function useAppointments(): UseAppointments {
   const currentMonthYear = getMonthYearDetails(dayjs());
   const [monthYear, setMonthYear] = useState(currentMonthYear);
@@ -41,6 +46,9 @@ export function useAppointments(): UseAppointments {
     queryClient.prefetchQuery(
       [queryKeys.appointments, nextMonthYear.year, nextMonthYear.month],
       () => getAppointments(nextMonthYear.year, nextMonthYear.month),
+      {
+        ...commonOptions,
+      },
     );
   }, [monthYear, queryClient]);
 
@@ -62,6 +70,11 @@ export function useAppointments(): UseAppointments {
     () => getAppointments(monthYear.year, monthYear.month),
     {
       select: !showAll && selectFn,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
+      refetchInterval: 60000,
+      ...commonOptions,
     },
   );
 
