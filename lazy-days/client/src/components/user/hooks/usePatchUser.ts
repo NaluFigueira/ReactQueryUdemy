@@ -1,6 +1,11 @@
-import { UseMutateFunction, useMutation } from '@tanstack/react-query';
+import {
+  UseMutateFunction,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useCustomToast } from 'components/app/hooks/useCustomToast';
 import jsonpatch from 'fast-json-patch';
+import { queryKeys } from 'react-query/constants';
 
 import type { User } from '../../../../../shared/types';
 import { axiosInstance, getJWTHeader } from '../../../axiosInstance';
@@ -33,15 +38,39 @@ export function usePatchUser(): UseMutateFunction<
 > {
   const { user, updateUser } = useUser();
   const toast = useCustomToast();
+  const queryClient = useQueryClient();
 
   const { mutate: patchUser } = useMutation(
     (newUserData: User) => patchUserOnServer(newUserData, user),
     {
+      onMutate: async (newData: User | null) => {
+        queryClient.cancelQueries([queryKeys.user]);
+
+        const previousUserData: User = queryClient.getQueryData([
+          queryKeys.user,
+        ]);
+
+        updateUser(newData);
+
+        return { previousUserData };
+      },
       onSuccess: (userData: User | null) => {
         if (user) {
           updateUser(userData);
           toast({ title: 'User updated!', status: 'success' });
         }
+      },
+      onError: (error, newData, context) => {
+        if (context.previousUserData) {
+          updateUser(context.previousUserData);
+          toast({
+            title: 'Updated failed; restoring previous values',
+            status: 'error',
+          });
+        }
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries([queryKeys.user]);
       },
     },
   );
