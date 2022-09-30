@@ -1,5 +1,5 @@
 import { createStandaloneToast } from '@chakra-ui/react';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientConfig } from '@tanstack/react-query';
 
 import { theme } from '../theme';
 
@@ -15,18 +15,25 @@ function queryErrorHandler(error: unknown): void {
   toast({ title, status: 'error', variant: 'subtle', isClosable: true });
 }
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 600000,
-      cacheTime: 900000,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      onError: queryErrorHandler,
+export function generateQueryClient(options?: Partial<QueryClientConfig>) {
+  return new QueryClient({
+    ...options,
+    defaultOptions: {
+      queries: {
+        staleTime: 600000,
+        cacheTime: 900000,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        onError: queryErrorHandler,
+        ...options?.defaultOptions.queries,
+      },
+      mutations: {
+        onError: queryErrorHandler,
+        ...options?.defaultOptions.mutations,
+      },
     },
-    mutations: {
-      onError: queryErrorHandler,
-    },
-  },
-});
+  });
+}
+
+export const queryClient = generateQueryClient();
